@@ -1,0 +1,144 @@
+// Identity and access tables (spec section 7.2, sprint 1).
+// Business tables (masters, LR, challan, billing, ...) are added in later sprints.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Organization {
+  id        String   @id @default(uuid(7)) @db.Uuid
+  name      String   @db.VarChar(200)
+  legalName String?  @map("legal_name") @db.VarChar(200)
+  pan       String?  @db.VarChar(10)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  gstRegistrations GstRegistration[]
+  branches         Branch[]
+  users            AppUser[]
+  roles            Role[]
+
+  @@map("organization")
+}
+
+model GstRegistration {
+  id             String   @id @default(uuid(7)) @db.Uuid
+  organizationId String   @map("organization_id") @db.Uuid
+  gstin          String   @db.VarChar(15)
+  legalName      String   @map("legal_name") @db.VarChar(200)
+  stateCode      String   @map("state_code") @db.VarChar(2)
+  isActive       Boolean  @default(true) @map("is_active")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  branches     Branch[]
+
+  @@unique([organizationId, gstin])
+  @@index([organizationId])
+  @@map("gst_registration")
+}
+
+model Branch {
+  id                 String   @id @default(uuid(7)) @db.Uuid
+  organizationId     String   @map("organization_id") @db.Uuid
+  gstRegistrationId  String   @map("gst_registration_id") @db.Uuid
+  code               String   @db.VarChar(6)
+  name               String   @db.VarChar(200)
+  addressLine        String?  @map("address_line") @db.VarChar(300)
+  city               String?  @db.VarChar(100)
+  stateCode          String?  @map("state_code") @db.VarChar(2)
+  isActive           Boolean  @default(true) @map("is_active")
+  version            Int      @default(1)
+  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  organization    Organization    @relation(fields: [organizationId], references: [id])
+  gstRegistration GstRegistration @relation(fields: [gstRegistrationId], references: [id])
+  userRoles       UserBranchRole[]
+
+  @@unique([organizationId, code])
+  @@index([gstRegistrationId])
+  @@map("branch")
+}
+
+model AppUser {
+  id             String    @id @default(uuid(7)) @db.Uuid
+  organizationId String    @map("organization_id") @db.Uuid
+  // Stored lowercased by the application (spec uses citext; Prisma has no citext type).
+  email          String    @db.VarChar(320)
+  fullName       String    @map("full_name") @db.VarChar(200)
+  phone          String?   @db.VarChar(20)
+  passwordHash   String    @map("password_hash") @db.VarChar(255)
+  mfaSecretEnc   Bytes?    @map("mfa_secret_enc")
+  mfaEnabled     Boolean   @default(false) @map("mfa_enabled")
+  status         String    @default("ACTIVE") @db.VarChar(10)
+  failedAttempts Int       @default(0) @map("failed_attempts")
+  lockedUntil    DateTime? @map("locked_until") @db.Timestamptz(6)
+  lastLoginAt    DateTime? @map("last_login_at") @db.Timestamptz(6)
+  version        Int       @default(1)
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  organization Organization     @relation(fields: [organizationId], references: [id])
+  branchRoles  UserBranchRole[]
+
+  @@unique([organizationId, email])
+  @@map("app_user")
+}
+
+model Permission {
+  code        String @id @db.VarChar(64)
+  description String @db.VarChar(300)
+
+  rolePermissions RolePermission[]
+
+  @@map("permission")
+}
+
+model Role {
+  id             String   @id @default(uuid(7)) @db.Uuid
+  organizationId String   @map("organization_id") @db.Uuid
+  code           String   @db.VarChar(64)
+  name           String   @db.VarChar(120)
+  isHeadOffice   Boolean  @default(false) @map("is_head_office")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  organization    Organization     @relation(fields: [organizationId], references: [id])
+  permissions     RolePermission[]
+  userAssignments UserBranchRole[]
+
+  @@unique([organizationId, code])
+  @@map("role")
+}
+
+model RolePermission {
+  roleId         String @map("role_id") @db.Uuid
+  permissionCode String @map("permission_code") @db.VarChar(64)
+
+  role       Role       @relation(fields: [roleId], references: [id])
+  permission Permission @relation(fields: [permissionCode], references: [code])
+
+  @@id([roleId, permissionCode])
+  @@index([permissionCode])
+  @@map("role_permission")
+}
+
+model UserBranchRole {
+  organizationId String @map("organization_id") @db.Uuid
+  userId         String @map("user_id") @db.Uuid
+  branchId       String @map("branch_id") @db.Uuid
+  roleId         String @map("role_id") @db.Uuid
+
+  user   AppUser @relation(fields: [userId], references: [id])
+  branch Branch  @relation(fields: [branchId], references: [id])
+  role   Role    @relation(fields: [roleId], references: [id])
+
+  @@id([userId, branchId, roleId])
+  @@index([branchId])
+  @@index([roleId])
+  @@map("user_branch_role")
+}
