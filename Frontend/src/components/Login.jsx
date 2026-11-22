@@ -16,13 +16,20 @@ import {
 
 function Login() {
     const [showPassword, setShowPassword] = useState(false)
+    const [userEmail, setUserEmail] = useState('');
+    const [userPassword, setUserPassword] = useState('')
 
     const navigate = useNavigate()
 
     const handleSubmitLogin = (e) => {
         e.preventDefault()
-        // Connect your login API here
+        console.log("Email:", userEmail);
+        console.log("Password:", userPassword);
+        // Api call check if the user is correct 
         navigate("/")
+
+        //if wrong user please enter correct email or password
+
     }
 
     return (
@@ -59,6 +66,8 @@ function Login() {
                                 type="email"
                                 placeholder="name@example.com"
                                 required
+                                value={userEmail}
+                                onChange={(e) => setUserEmail(e.target.value)}
                             />
                         </div>
 
@@ -84,6 +93,8 @@ function Login() {
                                     placeholder="Enter your password"
                                     required
                                     className="pr-10"
+                                    value={userPassword}
+                                    onChange={(e) => setUserPassword(e.target.value)}
                                 />
 
                                 <button

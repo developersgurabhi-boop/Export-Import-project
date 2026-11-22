@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { Menu, Package2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -18,6 +18,7 @@ const navLinks = [
 
 function Navbar() {
     const [open, setOpen] = useState(false)
+    const navigate = useNavigate()
 
     return (
         <nav className="fixed w-full border-b bg-background">
@@ -72,10 +73,10 @@ function Navbar() {
                                 ))}
 
                                 <div className="flex flex-col gap-3">
-                                    <Button variant="ghost" asChild>
+                                    <Button variant="ghost" asChild onClick={() => { navigate("/login") }}>
                                         <Link to="/login">Login</Link>
                                     </Button>
-                                    <Button>Sign Up</Button>
+                                    <Button onClick={() => { navigate("/signup") }}>Sign Up</Button>
                                 </div>
                             </div>
                         </SheetContent>
