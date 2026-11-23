@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import { Menu, Package2 } from "lucide-react"
+import { LogOut, Menu, Package2, UserCircle } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -10,15 +10,24 @@ import {
 } from "@/components/ui/sheet"
 
 const navLinks = [
-    { name: "Home", href: "/" },
-    { name: "Products", href: "/products" },
-    { name: "About", href: "/about" },
-    { name: "Contact", href: "/contact" },
+    { name: "LC ", href: "/lc" },
+    { name: "Bill", href: "/bill" },
+    { name: "Challan", href: "/challan" },
 ]
 
-function Navbar() {
+export const Navbar = ({ user, setUser }) => {
     const [open, setOpen] = useState(false)
+    const [accountOpen, setAccountOpen] = useState(false)
+
     const navigate = useNavigate()
+
+    const isLoggedIn = user && Object.keys(user).length > 0
+
+    const handleLogout = () => {
+        setUser({})
+        setAccountOpen(false)
+        navigate("/login", { replace: true })
+    }
 
     return (
         <nav className="fixed w-full border-b bg-background">
@@ -45,8 +54,35 @@ function Navbar() {
 
                 {/* Desktop Buttons */}
                 <div className="hidden items-center gap-3 md:flex">
-                    <Button variant="ghost">Login</Button>
-                    <Button>Sign Up</Button>
+                    {isLoggedIn ? (
+                        <div className="relative">
+                            <Button
+                                variant="ghost"
+                                onClick={() => setAccountOpen(!accountOpen)}
+                                className="flex items-center gap-2"
+                            >
+                                <UserCircle className="h-6 w-6" />
+                                <span>{user.name || "My Account"}</span>
+                            </Button>
+
+                            {accountOpen && (
+                                <div className="absolute right-0 top-12 z-50 w-44 rounded-md border bg-background p-2 shadow-lg">
+                                    <Button
+                                        variant="ghost"
+                                        className="w-full justify-start gap-2"
+                                        onClick={handleLogout}
+                                    >
+                                        <LogOut className="h-4 w-4" />
+                                        Logout
+                                    </Button>
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <Button asChild>
+                            <Link to="/login">Login</Link>
+                        </Button>
+                    )}
                 </div>
 
                 {/* Mobile Navigation */}
@@ -60,7 +96,7 @@ function Navbar() {
                         </SheetTrigger>
 
                         <SheetContent side="right">
-                            <div className="mt-8 flex flex-col gap-6">
+                            <div className="mt-8 pl-2 flex flex-col gap-6">
                                 {navLinks.map((link) => (
                                     <Link
                                         key={link.name}
@@ -72,11 +108,20 @@ function Navbar() {
                                     </Link>
                                 ))}
 
-                                <div className="flex flex-col gap-3">
-                                    <Button variant="ghost" asChild onClick={() => { navigate("/login") }}>
-                                        <Link to="/login">Login</Link>
-                                    </Button>
-                                    <Button onClick={() => { navigate("/signup") }}>Sign Up</Button>
+                                <div className="flex pr-2 flex-col gap-3">
+                                    {isLoggedIn ? (
+                                        <Button
+                                            className="w-full justify-start gap-2"
+                                            onClick={handleLogout}
+                                        >
+                                            Logout
+                                        </Button>
+                                    ) : (
+                                        < Button asChild >
+                                            <Link to="/login">Login</Link>
+                                        </Button>
+                                    )
+                                    }
                                 </div>
                             </div>
                         </SheetContent>
@@ -84,7 +129,7 @@ function Navbar() {
                 </div>
 
             </div>
-        </nav>
+        </nav >
     )
 }
 

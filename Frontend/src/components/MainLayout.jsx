@@ -1,10 +1,10 @@
 import Navbar from "@/components/Navbar"
 import { Outlet } from "react-router-dom"
 
-function MainLayout() {
+export const MainLayout = ({ user, setUser }) => {
     return (
         <div className="min-h-screen w-full overflow-x-hidden">
-            <Navbar />
+            <Navbar user={user} setUser={setUser} />
             <main>
                 <Outlet />
             </main>

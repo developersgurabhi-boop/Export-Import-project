@@ -14,7 +14,7 @@ import {
     CardTitle,
 } from "@/components/ui/card"
 
-function Login() {
+const Login = ({ setUser }) => {
     const [showPassword, setShowPassword] = useState(false)
     const [userEmail, setUserEmail] = useState('');
     const [userPassword, setUserPassword] = useState('')
@@ -26,7 +26,14 @@ function Login() {
         console.log("Email:", userEmail);
         console.log("Password:", userPassword);
         // Api call check if the user is correct 
-        navigate("/")
+        const hel = true;
+        if (true === hel) {
+            setUser({
+                email: userEmail,
+                userPassword: userPassword
+            })
+            navigate("/")
+        }
 
         //if wrong user please enter correct email or password
 
@@ -130,16 +137,6 @@ function Login() {
                         </Button>
 
                     </form>
-
-                    <div className="mt-6 text-center text-sm text-muted-foreground">
-                        Don't have an account?{" "}
-                        <Link
-                            to="/signup"
-                            className="font-semibold text-primary hover:underline"
-                        >
-                            Sign up
-                        </Link>
-                    </div>
 
                 </CardContent>
 
