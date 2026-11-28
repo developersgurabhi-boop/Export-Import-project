@@ -5,7 +5,7 @@ export const MainLayout = ({ user, setUser }) => {
     return (
         <div className="min-h-screen w-full overflow-x-hidden">
             <Navbar user={user} setUser={setUser} />
-            <main>
+            <main className="pt-16">
                 <Outlet />
             </main>
         </div>

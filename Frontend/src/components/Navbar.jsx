@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/sheet"
 
 const navLinks = [
-    { name: "LC ", href: "/lc" },
+    { name: "LR", href: "/lr" },
     { name: "Bill", href: "/bill" },
     { name: "Challan", href: "/challan" },
 ]
@@ -31,7 +31,7 @@ export const Navbar = ({ user, setUser }) => {
 
     return (
         <nav className="fixed w-full border-b bg-background">
-            <div className="container mx-auto flex h-16 items-center justify-between px-4">
+            <div className="container mx-auto flex h-14 items-center justify-between px-4">
 
                 {/* Logo */}
                 <Link to="/" className="flex items-center gap-2">
@@ -114,7 +114,9 @@ export const Navbar = ({ user, setUser }) => {
                                             className="w-full justify-start gap-2"
                                             onClick={handleLogout}
                                         >
-                                            Logout
+                                            <span className="text-red-400">
+                                                Logout
+                                            </span>
                                         </Button>
                                     ) : (
                                         < Button asChild >

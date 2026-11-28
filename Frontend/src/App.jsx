@@ -3,6 +3,9 @@ import Login from "./components/Login";
 import Home from "./components/Home";
 import MainLayout from "./components/MainLayout";
 import { useState } from "react";
+import LR from "./components/LR";
+import Bill from "./components/Bill";
+import Challan from "./components/Challan";
 
 function App() {
   const [user, setUser] = useState({});
@@ -19,6 +22,9 @@ function App() {
           {/* Routes with Navbar */}
           <Route element={<MainLayout user={user} setUser={setUser} />}>
             <Route path="/" element={<Home user={user} />} />
+            <Route path="/lr" element={<LR />} />
+            <Route path="/bill" element={<Bill />} />
+            <Route path="/challan" element={<Challan />} />
           </Route>
 
         </Routes>
